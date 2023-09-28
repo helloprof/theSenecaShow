@@ -1,0 +1,14 @@
+[
+    {
+        "channelID": 1,
+        "channel": "Seneca College"
+    },
+    {
+        "channelID": 2,
+        "channel": "Discovery Channel"
+    },
+    {
+        "channelID": 3,
+        "channel": "CBC News"
+    }
+]
