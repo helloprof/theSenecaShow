@@ -5,16 +5,26 @@ const app = express()
 
 const HTTP_PORT = 8080
 
+app.use(express.static('public'));
+
 app.get("/", (req, res) => {
     res.send("SM 1283198329")
 })
 
 app.get("/channels", (req, res) => {
-    showService.getAllChannels().then((channels) => {
-        res.json(channels)
-    }).catch((err) => {
-        res.send(err)
-    })
+    // if (req.query.test) {
+    //     res.sendFile(path.join(__dirname, "/views/index.html"))
+    //     console.log("hello")
+    // } else {
+    //     showService.getAllChannels().then((channels) => {
+    //         res.json(channels)
+    //     }).catch((err) => {c
+    //         res.send(err)
+    //     })
+    // }
+    res.sendFile(path.join(__dirname, "/views/index.html"))
+
+
 })
 
 app.get("/videos/channel/:channelID", (req, res) => {
