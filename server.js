@@ -5,10 +5,17 @@ const app = express()
 
 const HTTP_PORT = 8080
 
+app.set('view engine', 'ejs');
+
 app.use(express.static('public'));
 
 app.get("/", (req, res) => {
-    res.send("SM 1283198329")
+    showService.getAllChannels().then((channels) => {
+        res.render('channels', {
+            channels: channels
+        })
+    })
+
 })
 
 app.get("/channels", (req, res) => {
@@ -22,23 +29,31 @@ app.get("/channels", (req, res) => {
     //         res.send(err)
     //     })
     // }
-    res.sendFile(path.join(__dirname, "/views/index.html"))
+
+    // res.sendFile(path.join(__dirname, "/views/index.ejs"))
+
+    res.render('index')
+    // res.send("hello")
 
 
 })
 
 app.get("/videos/channel/:channelID", (req, res) => {
     showService.getVideosByChannel(req.params.channelID).then((videos) => {
-        res.json(videos)
+        res.render('videos', {
+            videos: videos
+        })
     }).catch((err) => {
-        res.send(err)
+        res.send("err")
     })
 })
 
 
 app.get("/videos/:id", (req, res) => {
     showService.getVideoByID(req.params.id).then((video) => {
-        res.send(video)
+        res.render('videos', {
+            videos: [video]
+        })
     }).catch((err) => {
         res.send(err)
     })
