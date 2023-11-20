@@ -29,25 +29,35 @@ app.get("/", (req, res) => {
   })
 })
 
-app.get("/channels", (req, res) => {
-  // if (req.query.test) {
-  //     res.sendFile(path.join(__dirname, "/views/index.html"))
-  //     console.log("hello")
-  // } else {
-  //     showService.getAllChannels().then((channels) => {
-  //         res.json(channels)
-  //     }).catch((err) => {c
-  //         res.send(err)
-  //     })
-  // }
-
-  // res.sendFile(path.join(__dirname, "/views/index.ejs"))
-
-  res.render('index')
-  // res.send("hello")
-
-
+app.get("/channels/new", (req, res) => {
+  res.render("addChannel")
 })
+
+app.post("/channels/new", (req, res) => {
+  showService.addChannel(req.body).then(() => {
+    res.redirect("/")
+  })
+})
+
+// app.get("/channels", (req, res) => {
+//   // if (req.query.test) {
+//   //     res.sendFile(path.join(__dirname, "/views/index.html"))
+//   //     console.log("hello")
+//   // } else {
+//   //     showService.getAllChannels().then((channels) => {
+//   //         res.json(channels)
+//   //     }).catch((err) => {c
+//   //         res.send(err)
+//   //     })
+//   // }
+
+//   // res.sendFile(path.join(__dirname, "/views/index.ejs"))
+
+//   res.render('channels')
+//   // res.send("hello")
+
+
+// })
 
 app.get("/videos/channel/:channelID", (req, res) => {
   showService.getVideosByChannel(req.params.channelID).then((videos) => {
@@ -118,7 +128,6 @@ app.get("/videos/:id", (req, res) => {
     res.send(err)
   })
 })
-
 
 showService.initialize().then(() => {
   app.listen(HTTP_PORT, () => {
