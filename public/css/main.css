@@ -1654,6 +1654,10 @@ html {
   padding-right: 0.313rem;
 }
 
+.btn-block {
+  width: 100%;
+}
+
 .btn-circle:where(.btn-xs) {
   height: 1.5rem;
   width: 1.5rem;
@@ -1940,10 +1944,6 @@ html {
 
 .justify-end {
   justify-content: flex-end;
-}
-
-.justify-center {
-  justify-content: center;
 }
 
 .justify-between {
