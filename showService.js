@@ -31,9 +31,8 @@ const Video = sequelize.define('Video', {
         autoIncrement: true, // automatically increment the value
     },
     title: Sequelize.STRING,
-    videoURL: Sequelize.STRING,
+    video: Sequelize.STRING,
     date: Sequelize.DATE,
-    thumbnail: Sequelize.STRING
 })
 
 Video.belongsTo(Channel, {foreignKey: "channelID"})
@@ -60,11 +59,15 @@ function initialize() {
 
 function getAllChannels() {
     return new Promise((resolve, reject) => {
-        if (channels.length > 0) {
-            resolve(channels)
-        } else {
-            reject("no videos!")
-        }
+        Channel.findAll().then((channels) => {
+            if (channels.length > 0) {
+                resolve(channels)
+            } else {
+                reject("No channels found!")
+            }
+        }).catch((err) => {
+            reject(err)
+        })
     })
 }
 
@@ -101,11 +104,22 @@ function addChannel(formData) {
     })
 }
 
+function addVideo(formData) {
+    return new Promise((resolve, reject) => {
+        Video.create(formData).then(() => {
+            resolve()
+        }).catch((err) => {
+            reject(err)
+        })
+    })
+}
+
 
 module.exports = {
     initialize,
     getAllChannels,
     getVideoByID,
     getVideosByChannel,
-    addChannel
+    addChannel,
+    addVideo
 }
