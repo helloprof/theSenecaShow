@@ -3,6 +3,9 @@ const path = require("path")
 const express = require("express")
 const app = express()
 
+const cloudinary = require('cloudinary').v2
+const streamifier = require('streamifier')
+
 const multer = require("multer")
 
 const HTTP_PORT = 8080
@@ -12,25 +15,35 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 
-const storage = multer.diskStorage({
-  destination: 'public/videos/',
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
 
-const upload = multer({ storage: storage });
+// const storage = multer.diskStorage({
+//   destination: 'public/videos/',
+//   filename: function (req, file, cb) {
+//     cb(null, Date.now() + path.extname(file.originalname));
+//   },
+// });
+
+const upload = multer();
+
+cloudinary.config({ 
+  cloud_name: process.env.CLOUD_NAME, 
+  api_key: process.env.API_KEY, 
+  api_secret: process.env.API_SECRET,
+  secure: true
+});
 
 app.get("/", (req, res) => {
   showService.getAllChannels().then((channels) => {
     res.render('channels', {
       channels: channels
     })
+  }).catch((err) => {
+    res.send(err)
   })
 })
 
 app.get("/channels/new", (req, res) => {
-  res.render("addChannel")
+    res.render("addChannel")
 })
 
 app.post("/channels/new", (req, res) => {
@@ -70,49 +83,57 @@ app.get("/videos/channel/:channelID", (req, res) => {
 })
 
 app.get("/videos/new", (req, res) => {
-  res.render("addVideo")
+  showService.getAllChannels().then((channels) => {
+    res.render("addVideo", {
+      channels: channels
+    })
+  }).catch((err) => {
+    res.send(err)
+  })
 })
 
 // code from https://cloudinary.com/blog/node_js_file_upload_to_a_local_server_or_to_the_cloud
 app.post('/videos/new', upload.single('video'), function (req, res, next) {
-  // if (req.file) {
+  if (req.file) {
 
-  //   let streamUpload = (req) => {
-  //     return new Promise((resolve, reject) => {
-  //       let stream = cloudinary.uploader.upload_stream(
-  //         (error, result) => {
-  //           if (result) {
-  //             resolve(result);
-  //           } else {
-  //             reject(error);
-  //           }
-  //         }
-  //       );
+    let streamUpload = (req) => {
+      return new Promise((resolve, reject) => {
+        let stream = cloudinary.uploader.upload_stream(
+          (error, result) => {
+            if (result) {
+              resolve(result);
+            } else {
+              reject(error);
+            }
+          }
+        );
 
-  //       streamifier.createReadStream(req.file.buffer).pipe(stream);
-  //     });
-  //   };
+        streamifier.createReadStream(req.file.buffer).pipe(stream);
+      });
+    };
 
-  //   async function upload(req) {
-  //     let result = await streamUpload(req);
-  //     console.log(result);
-  //   }
+    async function upload(req) {
+      let result = await streamUpload(req);
+      // console.log(result);
+      return result
+    }
 
-  //   upload(req).then((uploaded) => {
-  //     processUpload(uploaded.url)
-  //   })
-  // } else {
-  //   processUpload("")
-  // }
+    upload(req).then((uploaded) => {
+      console.log(uploaded)
+      processUpload(uploaded.url)
+    }).catch((err) => {
+      console.log(err)
+    })
+  } else {
+    processUpload("")
+  }
 
-  // function processUpload(uploadedURL) {
-  //   req.body.video = uploadedURL
-  //   // process our new data from form into json or DB next week!
-  // }
-
-  res.send(req.body)
-  console.log(req.file)
-
+  function processUpload(uploadedURL) {
+    req.body.video = uploadedURL
+    showService.addVideo(req.body).then(() => {
+      res.redirect("/")
+    })
+  }
 
 
 });
@@ -127,6 +148,10 @@ app.get("/videos/:id", (req, res) => {
   }).catch((err) => {
     res.send(err)
   })
+})
+
+app.get("*", (req, res) => {
+  res.status(404).send("404")
 })
 
 showService.initialize().then(() => {
