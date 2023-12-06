@@ -1,5 +1,5 @@
-const videos = require("./data/videos.json")
-const channels = require("./data/channels.json")
+// const videos = require("./data/videos.json")
+// const channels = require("./data/channels.json")
 const env = require("dotenv")
 env.config()
 
